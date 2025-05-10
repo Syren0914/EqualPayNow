@@ -1,4 +1,3 @@
-// app/dashboard/page.tsx
 "use client"
 
 import { useEffect, useState } from "react"
@@ -27,34 +26,39 @@ export default function DashboardPage() {
   const [location, setLocation] = useState("California, US")
   const [data, setData] = useState<any[]>([])
   const [view, setView] = useState("gender")
-
   const [summary, setSummary] = useState<any>(null)
   const [lastUpdated, setLastUpdated] = useState<string>("")
 
   const fetchStats = async () => {
-  const res = await fetch(
-    view === "ethnicity"
-      ? `http://localhost:5000/api/salaries?groupBy=ethnicity` // don't filter job/location
-      : `http://localhost:5000/api/salaries?job=${job}&location=${location}&groupBy=${view}`
-  )
-
-
-    const json = await res.json()
-    console.log("Stats response:", json) // <-- add this
-    setData(json)
-    
+    const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000"
+    const url =
+      view === "ethnicity"
+        ? `${baseUrl}/api/salaries?groupBy=ethnicity`
+        : `${baseUrl}/api/salaries?job=${job}&location=${location}&groupBy=${view}`
+    try {
+      const res = await fetch(url)
+      const json = await res.json()
+      console.log("Stats response:", json)
+      setData(json)
+    } catch (err) {
+      console.error("Error fetching stats:", err)
+    }
   }
 
   const fetchSummary = async () => {
-    const res = await fetch("http://localhost:5000/api/insights/summary")
-    const json = await res.json()
-    setSummary(json)
-    setLastUpdated(new Date().toLocaleTimeString())
+    try {
+      const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000"
+      const res = await fetch(`${baseUrl}/api/insights/summary`)
+      const json = await res.json()
+      setSummary(json)
+      setLastUpdated(new Date().toLocaleTimeString())
+    } catch (err) {
+      console.error("Error fetching summary:", err)
+    }
   }
 
   useEffect(() => {
     fetchStats()
-    console.log("Fetching with:", { job, location, view })
   }, [job, location, view])
 
   useEffect(() => {
