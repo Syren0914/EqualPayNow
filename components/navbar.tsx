@@ -36,7 +36,7 @@ export default function Navbar() {
               {route.name}
             </Link>
           ))}
-          <Button size="sm">Sign In</Button>
+          {/* <Button size="sm">Sign In</Button> */}
         </nav>
 
         {/* Mobile menu button */}
