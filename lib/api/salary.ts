@@ -1,18 +1,7 @@
-
-
-export const submitSalary = async (data: any) => {
-  const res = await fetch("http://localhost:5000/api/salaries", {
+export async function submitSalary(data:any ) {
+  return fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/salaries`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
-  })
-
-  if (!res.ok) {
-    throw new Error("Failed to submit salary data")
-  }
-
-  return res.json()
+  }).then(res => res.json())
 }
-
