@@ -10,6 +10,17 @@ export default function SalaryLookupPage() {
   const [location, setLocation] = useState("")
   const [data, setData] = useState<any[]>([])
   const [currentTab, setCurrentTab] = useState("tech")
+  const [popularJobs, setPopularJobs] = useState<any[]>([])
+
+  const fetchPopularJobs = async () => {
+  const res = await fetch("http://localhost:5000/api/salaries?groupBy=jobTitle")
+  const json = await res.json()
+  setPopularJobs(json)
+  }
+
+  useEffect(() => {
+    fetchPopularJobs()
+  }, [])
 
 
   const fetchLookupData = async (selectedJob: string, selectedLocation: string) => {
@@ -87,15 +98,16 @@ export default function SalaryLookupPage() {
   {["tech", "healthcare", "finance", "education"].map((tab) => (
     <TabsContent key={tab} value={tab} className="space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {data.map((entry) => (
-          <PopularJobCard
-            key={entry._id}
-            title={entry._id}
-            avgSalary={`$${Math.round(entry.averageSalary).toLocaleString()}`}
-            gapPercent={Math.floor(Math.random() * 20)}
-            totalSubmissions={entry.count}
-          />
-        ))}
+        {popularJobs.map((entry) => (
+  <PopularJobCard
+    key={entry._id}
+    title={entry._id}
+    avgSalary={`$${Math.round(entry.averageSalary).toLocaleString()}`}
+    gapPercent={Math.floor(Math.random() * 20)} // or fetch real gap if you compute it
+    totalSubmissions={entry.count}
+  />
+))}
+
       </div>
     </TabsContent>
   ))}
