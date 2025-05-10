@@ -6,8 +6,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useState, useEffect } from "react"
 
 export default function SalaryLookupPage() {
-  const [job, setJob] = useState("Software Engineer")
-  const [location, setLocation] = useState("California, US")
+  const [job, setJob] = useState("")
+  const [location, setLocation] = useState("")
   const [data, setData] = useState<any[]>([])
   const [currentTab, setCurrentTab] = useState("tech")
 
@@ -77,38 +77,30 @@ export default function SalaryLookupPage() {
           </CardHeader>
           <CardContent>
             <Tabs value={currentTab} onValueChange={setCurrentTab} className="w-full">
+  <TabsList className="grid w-full grid-cols-4 mb-6">
+    <TabsTrigger value="tech">Technology</TabsTrigger>
+    <TabsTrigger value="healthcare">Healthcare</TabsTrigger>
+    <TabsTrigger value="finance">Finance</TabsTrigger>
+    <TabsTrigger value="education">Education</TabsTrigger>
+  </TabsList>
 
+  {["tech", "healthcare", "finance", "education"].map((tab) => (
+    <TabsContent key={tab} value={tab} className="space-y-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {data.map((entry) => (
+          <PopularJobCard
+            key={entry._id}
+            title={entry._id}
+            avgSalary={`$${Math.round(entry.averageSalary).toLocaleString()}`}
+            gapPercent={Math.floor(Math.random() * 20)}
+            totalSubmissions={entry.count}
+          />
+        ))}
+      </div>
+    </TabsContent>
+  ))}
+</Tabs>
 
-              <TabsList className="grid w-full grid-cols-4 mb-6">
-                <TabsTrigger value="tech">Technology</TabsTrigger>
-                <TabsTrigger value="healthcare">Healthcare</TabsTrigger>
-                <TabsTrigger value="finance">Finance</TabsTrigger>
-                <TabsTrigger value="education">Education</TabsTrigger>
-              </TabsList>
-              <TabsContent value="tech" className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {data
-                    .filter((entry) => [
-                      "Software Engineer",
-                      "Product Manager",
-                      "Data Scientist",
-                      "UX Designer",
-                      "DevOps Engineer",
-                      "Frontend Developer"
-                    ].includes(entry._id))
-                    .map((entry) => (
-                      <PopularJobCard
-                        key={entry._id}
-                        title={entry._id}
-                        avgSalary={`$${Math.round(entry.averageSalary).toLocaleString()}`}
-                        gapPercent={Math.floor(Math.random() * 20)}
-                        totalSubmissions={entry.count}
-                      />
-                    ))}
-                </div>
-              </TabsContent>
-              {/* Additional TabsContent blocks can be adjusted similarly */}
-            </Tabs>
           </CardContent>
         </Card>
       </div>

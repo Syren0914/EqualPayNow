@@ -22,8 +22,8 @@ import CountUp from "react-countup"
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 
 export default function DashboardPage() {
-  const [job, setJob] = useState("Software Engineer")
-  const [location, setLocation] = useState("California, US")
+  const [job, setJob] = useState("")
+  const [location, setLocation] = useState("")
   const [data, setData] = useState<any[]>([])
   const [view, setView] = useState("gender")
   const [summary, setSummary] = useState<any>(null)
