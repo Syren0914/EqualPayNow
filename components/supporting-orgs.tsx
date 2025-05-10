@@ -1,26 +1,27 @@
-import Image from "next/image"
-
 export default function SupportingOrgs() {
   const organizations = [
-    { name: "UN Women", logo: "/placeholder.svg?height=60&width=120" },
-    { name: "Equal Pay International Coalition", logo: "/placeholder.svg?height=60&width=120" },
-    { name: "Women in Tech", logo: "/placeholder.svg?height=60&width=120" },
-    { name: "Global Fund for Women", logo: "/placeholder.svg?height=60&width=120" },
-    { name: "Equality Now", logo: "/placeholder.svg?height=60&width=120" },
+    "UN Women",
+    "Equal Pay International Coalition",
+    "Women in Tech",
+    "Global Fund for Women",
+    "Equality Now",
   ]
 
   return (
     <div className="flex flex-wrap justify-center items-center gap-8 md:gap-12">
-      {organizations.map((org) => (
-        <div key={org.name} className="flex flex-col items-center">
-          <Image
-            src={org.logo || "/placeholder.svg"}
-            alt={org.name}
-            width={120}
-            height={60}
-            className="grayscale hover:grayscale-0 transition-all duration-300"
-          />
-          <span className="text-xs text-muted-foreground mt-2">{org.name}</span>
+      {organizations.map((name) => (
+        <div
+          key={name}
+          className="flex flex-col items-center text-center"
+        >
+          <div className="h-28 w-28 flex items-center justify-center rounded-md bg-muted text-sm font-medium text-muted-foreground shadow-sm">
+            {name
+              .split(" ")
+              .slice(0, 2)
+              .map((word) => word[0])
+              .join("")}
+          </div>
+          <span className="text-xs text-muted-foreground mt-2">{name}</span>
         </div>
       ))}
     </div>

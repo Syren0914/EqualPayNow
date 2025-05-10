@@ -115,7 +115,7 @@ export default function Home() {
       {/* Supporting Organizations */}
       <section className="py-16 bg-white">
         <div className="container">
-          <h2 className="text-2xl font-medium text-center mb-12">Supported By</h2>
+          <h2 className="text-2xl font-medium text-center mb-12">Inspired By</h2>
           <SupportingOrgs />
         </div>
       </section>
