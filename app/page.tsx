@@ -70,7 +70,7 @@ export default function Home() {
                     <CountUp end={parseFloat(summary.genderGap) * 100} duration={1.2} decimals={2} />%
                   </span>
                 ) : (
-                  <span className="text-muted-foreground">Loading...</span>
+                  <span className="text-muted-foreground">8%</span>
                 )}
               </h2>
               <p className="mt-4 text-lg text-muted-foreground">
