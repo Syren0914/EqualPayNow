@@ -1,35 +1,13 @@
-"use client"
 import Link from "next/link"
 import { ArrowRight, BarChart3, Users } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import NetworkAnimation from "@/components/network-animation"
 import PreviewChart from "@/components/preview-chart"
 import SupportingOrgs from "@/components/supporting-orgs"
-import CountUp from "react-countup"
-import { useEffect, useState } from "react"
-
 
 export default function Home() {
-    const [summary, setSummary] = useState<any>(null)
-
-  useEffect(() => {
-    const fetchSummary = async () => {
-      try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/insights/summary`)
-        const json = await res.json()
-        setSummary(json)
-      } catch (error) {
-        console.error("Failed to fetch summary:", error)
-      }
-    }
-
-    fetchSummary()
-  }, [])
-
   return (
     <div className="flex flex-col">
-      {/* Hero Section */}
-      <div className="flex flex-col">
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-to-br from-pink-50 to-blue-50 py-16 md:py-24">
         <div className="container relative z-10 flex flex-col items-center text-center">
@@ -64,14 +42,7 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             <div>
               <h2 className="text-3xl font-bold tracking-tight">
-                Current average gender pay gap:{" "}
-                {summary?.genderGap != null ? (
-                  <span className="text-rose-500">
-                    <CountUp end={parseFloat(summary.genderGap) * 100} duration={1.2} decimals={2} />%
-                  </span>
-                ) : (
-                  <span className="text-muted-foreground">8%</span>
-                )}
+                Current average gender pay gap: <span className="text-rose-500">18%</span>
               </h2>
               <p className="mt-4 text-lg text-muted-foreground">
                 Our data shows that women still earn significantly less than men across most industries. Help us gather
@@ -104,9 +75,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-      </div>
-
-    
 
       {/* How It Works Section */}
       <section className="py-16 bg-slate-50">
