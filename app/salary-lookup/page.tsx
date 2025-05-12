@@ -4,6 +4,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import JobSalarySearch from "@/components/salary-lookup/job-salary-search"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useState, useEffect } from "react"
+import ClipLoader from "react-spinners/ClipLoader"
+import Link from "next/link"
+
 
 export default function SalaryLookupPage() {
   const [job, setJob] = useState("")
@@ -11,12 +14,21 @@ export default function SalaryLookupPage() {
   const [data, setData] = useState<any[]>([])
   const [currentTab, setCurrentTab] = useState("tech")
   const [popularJobs, setPopularJobs] = useState<any[]>([])
+  const [loading, setLoading] = useState(true);
+
 
   const fetchPopularJobs = async () => {
+  setLoading(true)
+  try {
   const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/salaries?groupBy=jobTitle` || "http://localhost:5000/api/salaries?groupBy=jobTitle")
   const json = await res.json()
   setPopularJobs(json)
+  } catch (err) {
+    console.error("Error fetching popular jobs:", err);
   }
+  finally {
+    setLoading(false)
+  }}
 
   useEffect(() => {
     fetchPopularJobs()
@@ -24,9 +36,17 @@ export default function SalaryLookupPage() {
 
 
   const fetchLookupData = async (selectedJob: string, selectedLocation: string) => {
+    setLoading(true)
+    try {
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/salaries?job=${selectedJob}&location=${selectedLocation}`||`http://localhost:5000/api/salaries?job=${selectedJob}&location=${selectedLocation}`)
     const json = await res.json()
     setData(json)
+    } catch (err) {
+      console.error("Error fetching lookup data:", err)
+    }
+    finally {
+      setLoading(false)
+    }
   }
 
   useEffect(() => {
@@ -61,8 +81,12 @@ export default function SalaryLookupPage() {
               fetchLookupData(job, newLocation)
             }}
           />
+          {loading ? (
+        <div className="flex justify-center items-center h-40">
+          <ClipLoader size={40} color="#3B82F6" />
+        </div>):
 
-          {data.length > 0 && (
+          data.length > 0 && (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-8">
               {data.map((entry) => (
                 <Card key={entry._id}>
@@ -94,8 +118,12 @@ export default function SalaryLookupPage() {
     <TabsTrigger value="finance">Finance</TabsTrigger>
     <TabsTrigger value="education">Education</TabsTrigger>
   </TabsList>
+  {loading ? (
+        <div className="flex justify-center items-center h-40">
+          <ClipLoader size={40} color="#3B82F6" />
+        </div>):
 
-  {["tech", "healthcare", "finance", "education"].map((tab) => (
+  ["tech", "healthcare", "finance", "education"].map((tab) => (
     <TabsContent key={tab} value={tab} className="space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {popularJobs.map((entry) => (
@@ -147,12 +175,12 @@ function PopularJobCard({
         </div>
         <p className="text-xs text-muted-foreground">Based on {totalSubmissions.toLocaleString()} submissions</p>
         <div className="mt-4">
-          <a
+          <Link
             href={`/salary-lookup/results?job=${encodeURIComponent(title)}`}
             className="text-sm text-primary hover:underline"
           >
             View detailed breakdown →
-          </a>
+          </Link>
         </div>
       </CardContent>
     </Card>

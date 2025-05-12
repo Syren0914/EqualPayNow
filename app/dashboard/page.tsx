@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
+import ClipLoader from "react-spinners/ClipLoader"
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -22,6 +23,7 @@ import CountUp from "react-countup"
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 
 export default function DashboardPage() {
+  const [loading, setLoading] = useState(true);
   const [job, setJob] = useState("")
   const [location, setLocation] = useState("")
   const [data, setData] = useState<any[]>([])
@@ -42,6 +44,8 @@ export default function DashboardPage() {
       setData(json)
     } catch (err) {
       console.error("Error fetching stats:", err)
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -54,6 +58,8 @@ export default function DashboardPage() {
       setLastUpdated(new Date().toLocaleTimeString())
     } catch (err) {
       console.error("Error fetching summary:", err)
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -89,7 +95,12 @@ export default function DashboardPage() {
           </p>
         </div>
 
-        {summary && (
+        {loading ? (
+        <div className="flex justify-center items-center h-40">
+          <ClipLoader size={40} color="#3B82F6" />
+        </div>):
+
+        summary && (
           <div className="space-y-2">
             <div className="flex flex-col sm:flex-row gap-4">
               <Card className="flex-1">
@@ -155,7 +166,11 @@ export default function DashboardPage() {
                 <CardTitle>Average Salary by {view.charAt(0).toUpperCase() + view.slice(1)}</CardTitle>
               </CardHeader>
               <CardContent className="flex items-center justify-center">
-                {data.length > 0 ? (
+                {loading ? (
+                <div className="flex justify-center items-center h-40">
+                  <ClipLoader size={40} color="#3B82F6" />
+                </div>):
+                data.length > 0 ? (
                   <Bar data={chartData} />
                 ) : (
                   <p className="text-center text-muted-foreground">No data found.</p>
