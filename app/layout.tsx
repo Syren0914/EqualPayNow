@@ -8,6 +8,7 @@ import Footer from "@/components/footer"
 
 const inter = Inter({ subsets: ["latin"] })
 
+
 export const metadata: Metadata = {
   title: "EqualPayNow - Pay Transparency Platform",
   description: "Join the movement for wage equity by anonymously sharing and exploring salary insights."
@@ -20,6 +21,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+         <link rel="icon" href="/favicon.ico" sizes="any" />
+      </head>
       <body className={inter.className}>
         {/* <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange> */}
 

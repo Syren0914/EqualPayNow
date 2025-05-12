@@ -13,7 +13,7 @@ export default function SalaryLookupPage() {
   const [popularJobs, setPopularJobs] = useState<any[]>([])
 
   const fetchPopularJobs = async () => {
-  const res = await fetch("http://localhost:5000/api/salaries?groupBy=jobTitle")
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/salaries?groupBy=jobTitle` || "http://localhost:5000/api/salaries?groupBy=jobTitle")
   const json = await res.json()
   setPopularJobs(json)
   }
@@ -24,7 +24,7 @@ export default function SalaryLookupPage() {
 
 
   const fetchLookupData = async (selectedJob: string, selectedLocation: string) => {
-    const res = await fetch(`http://localhost:5000/api/salaries?job=${selectedJob}&location=${selectedLocation}`)
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/salaries?job=${selectedJob}&location=${selectedLocation}`||`http://localhost:5000/api/salaries?job=${selectedJob}&location=${selectedLocation}`)
     const json = await res.json()
     setData(json)
   }
