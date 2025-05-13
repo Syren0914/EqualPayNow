@@ -1,13 +1,16 @@
-const SalaryEntry = require("../models/SalaryEntry")
+const Salary = require("../models/SalaryEntry");
+
 
 const submitSalary = async (req, res) => {
   try {
-    const salary = await SalaryEntry.create(req.body)
-    res.status(201).json({ message: "Submission saved", id: salary._id })
+    const salary = await Salary.create(req.body);
+    res.status(201).json({ message: "Submission saved", id: salary._id });
   } catch (err) {
-    res.status(500).json({ error: "Failed to submit salary" })
+    console.error("Error submitting salary:", err);
+    res.status(500).json({ error: "Failed to submit salary" });
   }
-}
+};
+
 
 const getSalaryStats = async (req, res) => {
   try {

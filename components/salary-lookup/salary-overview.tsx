@@ -23,32 +23,33 @@ export default function SalaryOverview({
     trend: number
   }>(null)
   useEffect(() => {
-    const fetchOverview = async () => {
-      try {
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/salaries?job=${encodeURIComponent(jobTitle)}&location=${encodeURIComponent(location)}`
-        )
-        const json = await res.json()
-        console.log("Salary Overview Data:", json)
+  const fetchOverview = async () => {
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/salaries?job=${encodeURIComponent(jobTitle)}&location=${encodeURIComponent(location)}`
+      );
+      const json = await res.json();
+      const item = Array.isArray(json) ? json[0] : json;
 
-        // Assume the backend returns structure like:
-        // { averageSalary, medianSalary, salaryRange, genderGap, submissions, trend }
+      if (!item) return;
 
-        setData({
-          averageSalary: json.averageSalary,
-          medianSalary: json.medianSalary || 0 ,
-          salaryRange: json.salaryRange || 0,
-          genderGap: json.genderGap || 0,
-          submissions: json.count || 0,
-          trend: json.trend || 0,
-        })
-      } catch (err) {
-        console.error("Error fetching salary overview:", err)
-      }
+      console.log("Salary Overview Data:", item);
+
+      setData({
+        averageSalary: item.averageSalary ?? 0,
+        medianSalary: item.medianSalary ?? 0,
+        salaryRange: Array.isArray(item.salaryRange) ? item.salaryRange : [0, 0],
+        genderGap: item.genderGap ?? 0,
+        submissions: item.count ?? 0,
+        trend: item.trend ?? 0,
+      });
+    } catch (err) {
+      console.error("Error fetching salary overview:", err);
     }
+  };
 
-    fetchOverview()
-  }, [jobTitle, location])
+  fetchOverview();
+}, [jobTitle, location]);
 
   if (!data) {
     return (
