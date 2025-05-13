@@ -1,6 +1,6 @@
 const Salary = require("../models/SalaryEntry");
 
-
+// POST /api/salaries
 const submitSalary = async (req, res) => {
   try {
     const salary = await Salary.create(req.body);
@@ -11,19 +11,17 @@ const submitSalary = async (req, res) => {
   }
 };
 
-
+// GET /api/salaries
 const getSalaryStats = async (req, res) => {
   try {
-    const { job, location, groupBy } = req.query
+    const { job, location, groupBy } = req.query;
 
-    const match = {}
-    if (job) match.jobTitle = job
-    if (location) {
-      // Case-insensitive partial match for location
-      match.location = { $regex: location, $options: "i" };
-    }
+    const match = {};
+    if (job) match.jobTitle = job;
+    if (location) match.location = { $regex: location, $options: "i" };
 
     if (groupBy) {
+      // Grouped aggregation response
       const pipeline = [
         { $match: match },
         {
@@ -34,13 +32,13 @@ const getSalaryStats = async (req, res) => {
           }
         },
         { $sort: { averageSalary: -1 } }
-      ]
+      ];
 
-      const results = await Salary.aggregate(pipeline)
-      return res.json(results)
+      const results = await Salary.aggregate(pipeline);
+      return res.json(results);
     } else {
-      // Return general stats
-      const average = await Salary.aggregate([
+      // General stats response (single summary object)
+      const aggregation = await Salary.aggregate([
         { $match: match },
         {
           $group: {
@@ -49,35 +47,44 @@ const getSalaryStats = async (req, res) => {
             count: { $sum: 1 },
             medianSalary: { $avg: "$salary" }, // placeholder
             salaryRange: {
-              $push: "$salary" // we'll sort and compute range manually if needed
+              $push: "$salary" // we'll sort it below
             },
-            genderGap: { $avg: "$genderGap" }, // optional field, must exist
+            genderGap: { $avg: "$genderGap" }, // optional
             trend: { $avg: "$trend" } // optional
           }
         }
       ]);
-      const result = average[0];
 
-      if (!result) return res.json([]);
+      const result = aggregation[0];
 
-      // Manual salary range fallback
-      const salaries = result.salaryRange.sort((a, b) => a - b);
-      const salaryRange = [salaries[0], salaries[salaries.length - 1]];
+      if (!result || !Array.isArray(result.salaryRange) || result.salaryRange.length === 0) {
+        return res.json([{
+          averageSalary: 0,
+          medianSalary: 0,
+          salaryRange: [0, 0],
+          genderGap: 0,
+          trend: 0,
+          count: 0
+        }]);
+      }
+
+      // Compute sorted salary range
+      const sorted = result.salaryRange.sort((a, b) => a - b);
+      const salaryRange = [sorted[0], sorted[sorted.length - 1]];
 
       return res.json([{
-        averageSalary: result.averageSalary,
-        medianSalary: result.medianSalary,
+        averageSalary: result.averageSalary ?? 0,
+        medianSalary: result.medianSalary ?? 0,
         salaryRange,
-        genderGap: result.genderGap || 0,
-        trend: result.trend || 0,
-        count: result.count
+        genderGap: result.genderGap ?? 0,
+        trend: result.trend ?? 0,
+        count: result.count ?? 0
       }]);
     }
   } catch (err) {
     console.error("Error in getSalaryStats:", err);
     res.status(500).json({ error: "Server error" });
   }
-}
+};
 
-
-module.exports = { submitSalary, getSalaryStats }
+module.exports = { submitSalary, getSalaryStats };

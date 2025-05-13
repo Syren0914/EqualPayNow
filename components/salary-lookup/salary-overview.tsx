@@ -139,9 +139,14 @@ export default function SalaryOverview({
                 />
               </div>
               <div className="flex justify-between">
-                <span className="text-sm font-medium">{formatCurrency(data.salaryRange[0])}</span>
-                <span className="text-sm font-medium">{formatCurrency(data.medianSalary)}</span>
-                <span className="text-sm font-medium">{formatCurrency(data.salaryRange[1])}</span>
+                {Array.isArray(data.salaryRange) && data.salaryRange.length === 2 && (
+                  <div className="flex justify-between">
+                    <span className="text-sm font-medium">{formatCurrency(data.salaryRange[0])}</span>
+                    <span className="text-sm font-medium">{formatCurrency(data.medianSalary)}</span>
+                    <span className="text-sm font-medium">{formatCurrency(data.salaryRange[1])}</span>
+                  </div>
+                )}
+
               </div>
             </div>
           </div>
