@@ -15,7 +15,10 @@ const getSalaryStats = async (req, res) => {
 
     const match = {}
     if (job) match.jobTitle = job
-    if (location) match.location = location
+    if (location) {
+      // Case-insensitive partial match for location
+      match.location = { $regex: location, $options: "i" };
+    }
 
     if (groupBy) {
       const pipeline = [
@@ -40,15 +43,36 @@ const getSalaryStats = async (req, res) => {
           $group: {
             _id: null,
             averageSalary: { $avg: "$salary" },
-            count: { $sum: 1 }
+            count: { $sum: 1 },
+            medianSalary: { $avg: "$salary" }, // placeholder
+            salaryRange: {
+              $push: "$salary" // we'll sort and compute range manually if needed
+            },
+            genderGap: { $avg: "$genderGap" }, // optional field, must exist
+            trend: { $avg: "$trend" } // optional
           }
         }
-      ])
-      return res.json(average[0] || { averageSalary: 0, count: 0 })
+      ]);
+      const result = average[0];
+
+      if (!result) return res.json([]);
+
+      // Manual salary range fallback
+      const salaries = result.salaryRange.sort((a, b) => a - b);
+      const salaryRange = [salaries[0], salaries[salaries.length - 1]];
+
+      return res.json([{
+        averageSalary: result.averageSalary,
+        medianSalary: result.medianSalary,
+        salaryRange,
+        genderGap: result.genderGap || 0,
+        trend: result.trend || 0,
+        count: result.count
+      }]);
     }
   } catch (err) {
-    console.error("Error in getSalaryStats:", err)
-    res.status(500).json({ error: "Server error" })
+    console.error("Error in getSalaryStats:", err);
+    res.status(500).json({ error: "Server error" });
   }
 }
 
