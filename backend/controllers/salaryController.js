@@ -10,27 +10,45 @@ const submitSalary = async (req, res) => {
 }
 
 const getSalaryStats = async (req, res) => {
-  const { job, location, groupBy = "gender" } = req.query
-
-  const match = {}
-  if (job) match.jobTitle = job
-  if (location) match.location = location
-
   try {
-    const stats = await SalaryEntry.aggregate([
-      { $match: match },
-      {
-        $group: {
-          _id: `$${groupBy}`,
-          averageSalary: { $avg: "$salary" },
-          count: { $sum: 1 }
+    const { job, location, groupBy } = req.query
+
+    const match = {}
+    if (job) match.jobTitle = job
+    if (location) match.location = location
+
+    if (groupBy) {
+      const pipeline = [
+        { $match: match },
+        {
+          $group: {
+            _id: `$${groupBy}`,
+            averageSalary: { $avg: "$salary" },
+            count: { $sum: 1 }
+          }
+        },
+        { $sort: { averageSalary: -1 } }
+      ]
+
+      const results = await Salary.aggregate(pipeline)
+      return res.json(results)
+    } else {
+      // Return general stats
+      const average = await Salary.aggregate([
+        { $match: match },
+        {
+          $group: {
+            _id: null,
+            averageSalary: { $avg: "$salary" },
+            count: { $sum: 1 }
+          }
         }
-      },
-      { $sort: { averageSalary: -1 } }
-    ])
-    res.json(stats)
+      ])
+      return res.json(average[0] || { averageSalary: 0, count: 0 })
+    }
   } catch (err) {
-    res.status(500).json({ error: "Failed to fetch salary stats" })
+    console.error("Error in getSalaryStats:", err)
+    res.status(500).json({ error: "Server error" })
   }
 }
 

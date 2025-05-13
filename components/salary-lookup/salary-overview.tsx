@@ -1,76 +1,11 @@
 "use client"
 
 import { ArrowDown, ArrowUp, Info } from "lucide-react"
+import { useState, useEffect, use } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 
-// Sample data - in a real app, this would come from an API
-const getSalaryData = (jobTitle: string, location: string) => {
-  // This is just sample data - would be replaced with actual API call
-  const baseData = {
-    "Software Engineer": {
-      avgSalary: 120500,
-      medianSalary: 115000,
-      salaryRange: [85000, 165000],
-      genderGap: 14,
-      submissions: 1250,
-      trend: 3.5,
-    },
-    "Product Manager": {
-      avgSalary: 135800,
-      medianSalary: 130000,
-      salaryRange: [95000, 180000],
-      genderGap: 12,
-      submissions: 980,
-      trend: 4.2,
-    },
-    "Data Scientist": {
-      avgSalary: 128300,
-      medianSalary: 125000,
-      salaryRange: [90000, 170000],
-      genderGap: 11,
-      submissions: 875,
-      trend: 5.8,
-    },
-    "UX Designer": {
-      avgSalary: 105200,
-      medianSalary: 100000,
-      salaryRange: [75000, 140000],
-      genderGap: 9,
-      submissions: 720,
-      trend: 2.7,
-    },
-  }[jobTitle] || {
-    avgSalary: 95000,
-    medianSalary: 92000,
-    salaryRange: [65000, 130000],
-    genderGap: 15,
-    submissions: 500,
-    trend: 2.1,
-  }
 
-  // Apply a location modifier
-  const locationModifier =
-    {
-      "United States": 1,
-      "United Kingdom": 0.8,
-      Canada: 0.85,
-      Australia: 0.9,
-      Germany: 0.82,
-      France: 0.78,
-      Global: 0.75,
-    }[location] || 1
-
-  return {
-    ...baseData,
-    avgSalary: Math.round(baseData.avgSalary * locationModifier),
-    medianSalary: Math.round(baseData.medianSalary * locationModifier),
-    salaryRange: [
-      Math.round(baseData.salaryRange[0] * locationModifier),
-      Math.round(baseData.salaryRange[1] * locationModifier),
-    ],
-  }
-}
 
 export default function SalaryOverview({
   jobTitle,
@@ -79,15 +14,57 @@ export default function SalaryOverview({
   jobTitle: string
   location: string
 }) {
-  const data = getSalaryData(jobTitle, location)
+    const [data, setData] = useState<null | {
+    averageSalary: number
+    medianSalary: number
+    salaryRange: [number, number]
+    genderGap: number
+    submissions: number
+    trend: number
+  }>(null)
+  useEffect(() => {
+    const fetchOverview = async () => {
+      try {
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/salaries?job=${encodeURIComponent(jobTitle)}&location=${encodeURIComponent(location)}`
+        )
+        const json = await res.json()
+        console.log("Salary Overview Data:", json)
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("en-US", {
+        // Assume the backend returns structure like:
+        // { averageSalary, medianSalary, salaryRange, genderGap, submissions, trend }
+
+        setData({
+          averageSalary: json.averageSalary,
+          medianSalary: json.medianSalary || 0 ,
+          salaryRange: json.salaryRange || 0,
+          genderGap: json.genderGap || 0,
+          submissions: json.count || 0,
+          trend: json.trend || 0,
+        })
+      } catch (err) {
+        console.error("Error fetching salary overview:", err)
+      }
+    }
+
+    fetchOverview()
+  }, [jobTitle, location])
+
+  if (!data) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <p className="text-sm text-muted-foreground">Loading...</p>
+      </div>
+    )
+  }
+  
+
+  const formatCurrency = (amount: number) =>
+    new Intl.NumberFormat("en-US", {
       style: "currency",
       currency: "USD",
       maximumFractionDigits: 0,
     }).format(amount)
-  }
 
   return (
     <>
@@ -109,7 +86,7 @@ export default function SalaryOverview({
             </div>
             <div className="flex items-end justify-between">
               <div>
-                <p className="text-3xl font-bold">{formatCurrency(data.avgSalary)}</p>
+                <p className="text-3xl font-bold">{formatCurrency(data.averageSalary)}</p>
                 <p className="text-sm text-muted-foreground">per year</p>
               </div>
               <div className={`flex items-center ${data.trend > 0 ? "text-green-500" : "text-red-500"}`}>
