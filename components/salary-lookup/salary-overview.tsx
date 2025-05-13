@@ -23,13 +23,17 @@ export default function SalaryOverview({
     trend: number
   }>(null)
   useEffect(() => {
+  console.log("📡 useEffect triggered with:", jobTitle, location);
   const fetchOverview = async () => {
     try {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/salaries?job=${encodeURIComponent(jobTitle)}&location=${encodeURIComponent(location)}`
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/salaries?job=${encodeURIComponent(jobTitle)}`
       );
       const json = await res.json();
       const item = Array.isArray(json) ? json[0] : json;
+      console.log("🧾 Full API response:", json);
+      console.log("📦 Extracted item:", item);
+
 
       if (!item) return;
 
@@ -58,6 +62,7 @@ export default function SalaryOverview({
       </div>
     )
   }
+  
   
 
   const formatCurrency = (amount: number) =>
@@ -139,14 +144,9 @@ export default function SalaryOverview({
                 />
               </div>
               <div className="flex justify-between">
-                {Array.isArray(data.salaryRange) && data.salaryRange.length === 2 && (
-                  <div className="flex justify-between">
-                    <span className="text-sm font-medium">{formatCurrency(data.salaryRange[0])}</span>
-                    <span className="text-sm font-medium">{formatCurrency(data.medianSalary)}</span>
-                    <span className="text-sm font-medium">{formatCurrency(data.salaryRange[1])}</span>
-                  </div>
-                )}
-
+                <span className="text-sm font-medium">{formatCurrency(data.salaryRange[0])}</span>
+                <span className="text-sm font-medium">{formatCurrency(data.medianSalary)}</span>
+                <span className="text-sm font-medium">{formatCurrency(data.salaryRange[1])}</span>
               </div>
             </div>
           </div>
